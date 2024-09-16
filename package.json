@@ -12,7 +12,7 @@
   "dependencies": {
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.33.0",
-    "nuxt": "^3.13.0",
+    "nuxt": "^3.13.2",
     "postgres": "^3.4.4",
     "vue": "latest",
     "vue-router": "latest"
