@@ -1,5 +1,4 @@
 import { pgTable, serial, text, varchar } from 'drizzle-orm/pg-core';
-// import { relations } from 'drizzle-orm';
 
 // Roles Table to manage user roles (owner, manager, etc.)
 export const roles = pgTable('roles', {
