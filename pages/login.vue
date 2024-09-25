@@ -2,7 +2,7 @@
   <div class="min-h-screen px-10 pt-10">
     <div class="mx-auto max-w-96">
       <div class="mb-5 flex justify-center">
-        <img src="/" alt="Untitled UI logo" class="h-12 w-12" />
+        <img src="/icon.svg" alt="Untitled UI logo" class="h-12 w-12" />
       </div>
       <div class="mb-5 text-center">
         <h1 class="text-2xl font-semibold md:text-3xl">
@@ -57,7 +57,7 @@
               :loading="pending"
               :disabled="pending"
               @click="onSubmitSignup"
-              color="violet"
+              color="primary"
               size="lg"
               class="mb-3 font-semibold"
               block
@@ -111,7 +111,7 @@
               :loading="pending"
               :disabled="pending"
               @click="onSubmitLogin"
-              color="violet"
+              color="primary"
               size="lg"
               class="mb-3 font-semibold"
               block
