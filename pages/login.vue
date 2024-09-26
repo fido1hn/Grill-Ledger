@@ -69,7 +69,7 @@
               variant="solid"
               size="lg"
               class="mb-6 font-semibold"
-              @click="googleSignIn"
+              @click="handleGoogleSignIn"
               block
               >Sign up with Google</UButton
             >
@@ -143,6 +143,8 @@
 </template>
 
 <script lang="ts" setup>
+import { useAuth } from '~/composables/auth';
+
 useHead({
   title: 'Login',
 });
@@ -185,79 +187,29 @@ const loginForm = reactive({
 const rememberUser = ref(false);
 
 const pending = ref(false);
-const { toastError, toastSuccess } = useAppToast();
-const supabase = useSupabaseClient();
 
 const route = useRoute();
-const redirectUrl = (route.query.redirect as string) || '/dashboard';
+const redirectUrl = (route.query.redirect as string) || '/';
 
 useRedirectIfAuthenticated(redirectUrl);
 
+const { signUp, signIn, googleSignIn } = useAuth();
+
 async function onSubmitSignup() {
   pending.value = true;
-  try {
-    const { error } = await supabase.auth.signUp({
-      email: signupForm.email,
-      password: signupForm.password,
-      options: {
-        data: {
-          full_name: signupForm.name,
-        },
-      },
-    });
-    if (error) {
-      toastError({
-        title: 'Error authenticating',
-        description: error.message,
-      });
-    } else {
-      toastSuccess({
-        title: 'Success',
-        description: 'Login successful!',
-      });
-    }
-  } finally {
-    pending.value = false;
-  }
+  await signUp(signupForm.name, signupForm.email, signupForm.password);
+  pending.value = false;
 }
 
 async function onSubmitLogin() {
   pending.value = true;
-  try {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginForm.email,
-      password: loginForm.password,
-    });
-    if (error) {
-      toastError({
-        title: 'Error authenticating',
-        description: error.message,
-      });
-    } else {
-      toastSuccess({
-        title: 'Success',
-        description: 'Login successful!',
-      });
-    }
-  } finally {
-    pending.value = false;
-  }
+  await signIn(loginForm.email, loginForm.password);
+  pending.value = false;
 }
 
 const baseUrl = useRuntimeConfig().public.baseUrl;
 
-async function googleSignIn() {
-  let { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${baseUrl}/dashboard`,
-    },
-  });
-  if (error) {
-    toastError({
-      title: 'Error authenticating',
-      description: error.message,
-    });
-  }
+async function handleGoogleSignIn() {
+  googleSignIn(`${baseUrl}/`);
 }
 </script>
