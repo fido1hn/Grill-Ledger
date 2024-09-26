@@ -1,7 +1,11 @@
 <template>
-  <div> Welcome to Grill Ledger </div>
+  <div>
+    <p>Welcome to Grill Ledger</p>
+  </div>
 </template>
 
-<script lang="ts" setup></script>
-
-<style></style>
+<script lang="ts" setup>
+useHead({
+  title: 'Home',
+});
+</script>

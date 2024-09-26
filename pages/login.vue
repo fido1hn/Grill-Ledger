@@ -181,7 +181,7 @@ function changeTab(index: number) {
 
 const signupForm = reactive({ name: '', email: '', password: '' });
 const loginForm = reactive({
-  email: 'testuser@financetracker.io',
+  email: 'charman@gl.io',
   password: 'password',
 });
 const rememberUser = ref(false);
