@@ -19,3 +19,7 @@ Start the development server on `http://localhost:3000`:
 # pnpm
 pnpm run dev
 ```
+
+## Todo
+
+- SaleItemCard

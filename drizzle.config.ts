@@ -7,6 +7,6 @@ export default defineConfig({
   dialect: 'postgresql',
   dbCredentials: {
     url: process.env.NUXT_DB_URL!,
-    ssl: true,
+    ssl: false,
   },
 });
