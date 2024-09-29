@@ -63,7 +63,7 @@
               block
               >Get started</UButton
             >
-            <UButton
+            <!-- <UButton
               color="white"
               icon="i-flat-color-icons-google"
               variant="solid"
@@ -72,7 +72,7 @@
               @click="handleGoogleSignIn"
               block
               >Sign up with Google</UButton
-            >
+            > -->
             <p class="text-center">
               Already have an account?
               <NuxtLink
@@ -117,7 +117,7 @@
               block
               >Sign in</UButton
             >
-            <UButton
+            <!-- <UButton
               color="white"
               icon="i-flat-color-icons-google"
               variant="solid"
@@ -126,7 +126,7 @@
               @click="googleSignIn"
               block
               >Sign in with Google</UButton
-            >
+            > -->
             <p class="text-center">
               Don't have an account?
               <NuxtLink

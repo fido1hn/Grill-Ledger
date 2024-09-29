@@ -1,4 +1,12 @@
-import { pgTable, serial, text, varchar } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  pgEnum,
+  serial,
+  text,
+  varchar,
+  integer,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
 // Roles Table to manage user roles (owner, manager, etc.)
 // export const roles = pgTable('roles', {
@@ -33,40 +41,48 @@ import { pgTable, serial, text, varchar } from 'drizzle-orm/pg-core';
 //   employmentDate: text('employment_date').default('now()'),
 // });
 
+// Payment methods enum
+export const paymentMethodsEnum = pgEnum("payment_method", [
+  "card",
+  "transfer",
+  "cash",
+]);
+
 // Menu Items
-export const menuItems = pgTable('menu_items', {
-  itemId: serial('item_id').primaryKey(),
+export const menuItems = pgTable("menu_items", {
+  itemId: serial("item_id").primaryKey(),
   // restaurantId: serial('restaurant_id').references(
   //   () => restaurants.restaurantId
   // ),
-  name: varchar('name', { length: 100 }).notNull(),
-  description: text('description'),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
   // costPrice: text('cost_price').notNull(),
-  salePrice: text('sale_price').notNull(),
+  salePrice: integer("sale_price").notNull(),
   // createdAt: text('created_at').default('now()'),
 });
 
 // Sales
-export const sales = pgTable('sales', {
-  saleId: serial('sale_id').primaryKey(),
+export const sales = pgTable("sales", {
+  saleId: serial("sale_id").primaryKey(),
   // restaurantId: serial('restaurant_id').references(
   //   () => restaurants.restaurantId
   // ),
   // staffId: serial('staff_id').references(() => staff.staffId),
-  saleDate: text('sale_date').default('now()'),
-  totalAmount: text('total_amount').notNull(),
-  // paymentMethod: text('payment_method').notNull(), // 'cash', 'card', 'online'
+  saleDate: timestamp("sale_date", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  totalAmount: integer("total_amount").notNull(),
+  paymentMethod: paymentMethodsEnum("payment_method").notNull().default("card"), // 'cash', 'card', 'online'
 });
 
 // SalesItem
-// export const saleItems = pgTable('sale_items', {
-//   saleItemId: serial('sale_item_id').primaryKey(),
-//   saleId: serial('sale_id').references(() => sales.saleId),
-//   itemId: serial('item_id').references(() => menuItems.itemId),
-//   quantity: text('quantity').notNull(),
-//   price: text('price').notNull(),
-//   total: text('total').default('(quantity * price)'),
-// });
+export const saleItems = pgTable("sale_items", {
+  saleItemId: serial("sale_item_id").primaryKey(),
+  saleId: serial("sale_id").references(() => sales.saleId),
+  itemId: serial("item_id").references(() => menuItems.itemId),
+  quantity: integer("quantity").notNull(),
+  price: integer("price").notNull(),
+});
 
 // Payments
 // export const payments = pgTable('payments', {
