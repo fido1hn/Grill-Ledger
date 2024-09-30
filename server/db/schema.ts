@@ -6,6 +6,7 @@ import {
   varchar,
   integer,
   timestamp,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 // Roles Table to manage user roles (owner, manager, etc.)
@@ -59,6 +60,7 @@ export const menuItems = pgTable("menu_items", {
   // costPrice: text('cost_price').notNull(),
   salePrice: integer("sale_price").notNull(),
   // createdAt: text('created_at').default('now()'),
+  requiresPackaging: boolean("requires_packaging").default(false),
 });
 
 // Sales
@@ -73,6 +75,7 @@ export const sales = pgTable("sales", {
     .notNull(),
   totalAmount: integer("total_amount").notNull(),
   paymentMethod: paymentMethodsEnum("payment_method").notNull().default("card"), // 'cash', 'card', 'online'
+  packaging_count: integer("packaging_count").default(0),
 });
 
 // SalesItem
