@@ -30,9 +30,13 @@
           <ul>
             <li v-for="(item, itemIndex) in pack.items" :key="itemIndex">
               {{ item.name }}
-              <button @click="removeFromPack(packIndex, itemIndex)">
+              <UButton
+                color="rose"
+                class="ml-2"
+                @click="removeFromPack(packIndex, itemIndex)"
+              >
                 Remove
-              </button>
+              </UButton>
             </li>
           </ul>
         </div>
@@ -44,11 +48,19 @@
             :key="index"
           >
             {{ item.name }}
-            <button @click="removeAdditionalItem(index)">Remove</button>
+            <UButton
+              class="ml-2"
+              color="rose"
+              @click="removeAdditionalItem(index)"
+              >Remove</UButton
+            >
           </li>
         </ul>
         <p class="mt-3">Total Packs: {{ currentOrder.packs.length }}</p>
-        <!-- <p>Total: ${{ totalAmount.toFixed(2) }}</p> -->
+        <p>Total: NGN{{ totalAmount }}</p>
+
+        <!-- Checkout Button -->
+        <button @click="checkout" :disabled="!hasItems">Checkout</button>
       </div>
     </div>
   </div>
@@ -62,7 +74,7 @@ useHead({
 const { menuItems, fetchMenuItems } = useMenuItems();
 fetchMenuItems();
 
-const packPrice = 200;
+const PACK_PRICE = 200;
 const currentOrder = reactive({
   packs: [],
   additionalItems: [],
@@ -89,7 +101,41 @@ const addToOrder = (item) => {
   }
 };
 
-const removeFromPack = () => {};
+const removeFromPack = (packIndex, itemIndex) => {
+  currentOrder.packs[packIndex].items.splice(itemIndex, 1);
+  // If the pack is empty after removal, remove the pack
+  if (currentOrder.packs[packIndex].items.length === 0) {
+    currentOrder.packs.splice(packIndex, 1);
+  }
+};
 
-const removeAdditionalItem = () => {};
+const removeAdditionalItem = (index) => {
+  currentOrder.additionalItems.splice(index, 1);
+};
+
+const checkout = () => {};
+
+const hasItems = computed(() => {
+  return (
+    currentOrder.packs.length > 0 || currentOrder.additionalItems.length > 0
+  );
+});
+
+const totalAmount = computed(() => {
+  const packTotal = currentOrder.packs.reduce((total, pack) => {
+    return (
+      total +
+      pack.items.reduce((packTotal, item) => packTotal + item.sale_price, 0)
+    );
+  }, 0);
+  const additionalTotal = currentOrder.additionalItems.reduce(
+    (total, item) => total + item.sale_price,
+    0,
+  );
+  const packsCost = currentOrder.packs.length * PACK_PRICE;
+  console.log("packTotal =>", packTotal);
+  console.log("additionalTotal =>", additionalTotal);
+  console.log("packsCost =>", packsCost);
+  return packTotal + additionalTotal + packsCost;
+});
 </script>
