@@ -6,7 +6,10 @@ export const useMenuItems = () => {
 
   const fetchMenuItems = async () => {
     try {
-      const { data, error } = await supabase.from("menu_items").select();
+      const { data, error } = await supabase
+        .from("menu_items")
+        .select()
+        .order("item_id", { ascending: true });
       menuItems.value = data;
     } catch (error) {
       //
