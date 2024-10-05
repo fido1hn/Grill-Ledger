@@ -10,9 +10,14 @@
           v-for="item in menuItems"
           :key="item.item_id"
           @click="addToOrder(item)"
+          v-motion
+          :initial="{ scale: 1 }"
+          :tapped="{ scale: 0.95 }"
           class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200 dark:bg-gray-800"
         >
-          <div class="font-semibold">{{ item.name }}</div>
+          <div class="font-semibold">
+            {{ item.name }}
+          </div>
           <div class="text-sm text-gray-600 dark:text-gray-400">
             ₦ {{ item.sale_price }}
           </div>
@@ -52,7 +57,7 @@
                   @click="removeFromOrder(item.item_id)"
                   class="rounded-full bg-gray-200 p-1 hover:bg-gray-300"
                 >
-                  <MinusIcon class="h-4 w-4" />
+                  <MinusIcon class="h-4 w-4 dark:text-gray-900" />
                 </button>
               </span>
             </li>
