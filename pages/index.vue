@@ -10,19 +10,32 @@
           v-for="item in menuItems"
           :key="item.item_id"
           @click="addToOrder(item)"
-          class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200"
+          class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200 dark:bg-gray-800"
         >
           <div class="font-semibold">{{ item.name }}</div>
-          <div class="text-sm text-gray-600">₦ {{ item.sale_price }}</div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            ₦ {{ item.sale_price }}
+          </div>
         </button>
       </div>
     </div>
 
     <div class="p-6 md:w-1/3">
       <!-- Current Order -->
-      <div class="mb-8 overflow-hidden rounded-lg bg-white shadow-md">
+      <div
+        class="mb-8 overflow-hidden rounded-lg bg-white shadow-md dark:bg-gray-800"
+      >
         <div class="p-6">
-          <h2 class="mb-4 text-2xl font-bold">Current Order</h2>
+          <div class="flex items-start justify-between">
+            <h2 class="mb-4 text-2xl font-bold">Current Order</h2>
+            <UButton
+              icon="i-heroicons-arrow-path-solid"
+              variant="soft"
+              size="md"
+              square
+              @click="order = []"
+            />
+          </div>
           <div v-if="order.length === 0" class="text-gray-500">
             No items in the order.
           </div>
@@ -51,29 +64,30 @@
               <span>₦ {{ packsNeeded * PACK_PRICE }}</span>
             </li>
           </ul>
-          <div class="mb-4 mt-4 flex items-center">
-            <input
-              type="checkbox"
+          <div class="mb-8 mt-4 flex items-center">
+            <UCheckbox
               id="customerOwnPack"
               v-model="customerOwnPack"
               class="mr-2"
             />
-            <label for="customerOwnPack">Customer pack</label>
+            <label for="customerOwnPack" class="font-semibold"
+              >Customer pack</label
+            >
           </div>
           <div class="mb-4">
-            <label for="paymentType" class="mb-2 block">Payment Type:</label>
-            <select
-              id="paymentType"
-              v-model="paymentType"
-              class="w-full rounded border p-2"
+            <label for="paymentType" class="mb-2 block text-base font-semibold"
+              >Payment Type:</label
             >
-              <option value="card">Card</option>
-              <option value="transfer">Transfer</option>
-              <option value="cash">Cash</option>
-            </select>
+            <USelect
+              v-model="paymentType"
+              id="paymentType"
+              :options="paymentTypes"
+            />
           </div>
         </div>
-        <div class="flex items-center justify-between bg-gray-50 px-6 py-4">
+        <div
+          class="flex items-center justify-between bg-gray-50 px-6 py-4 dark:bg-gray-950"
+        >
           <h3 class="text-xl font-bold">Total:</h3>
           <span class="text-xl font-bold">₦ {{ totalAmount }}</span>
         </div>
@@ -116,7 +130,8 @@ await fetchMenuItems();
 
 const order = ref<OrderItem[]>([]);
 const customerOwnPack = ref(false);
-const paymentType = ref("card");
+const paymentTypes = ["card", "transfer", "cash"];
+const paymentType = ref(paymentTypes[0]);
 
 const addToOrder = (item: MenuItem): void => {
   const existingItem = order.value.find(
