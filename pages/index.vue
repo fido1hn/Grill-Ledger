@@ -12,7 +12,7 @@
           @click="addToOrder(item)"
           v-motion
           :initial="{ scale: 1 }"
-          :tapped="{ scale: 0.95 }"
+          :tapped="{ scale: 0.9 }"
           class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200 dark:bg-gray-800"
         >
           <div class="font-semibold">

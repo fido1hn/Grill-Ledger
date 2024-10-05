@@ -25,21 +25,4 @@ export default defineNuxtConfig({
       Inter: "200..700",
     },
   },
-
-  // runtimeConfig: {
-  //   public: {
-  //     motion: {
-  //       directives: {
-  //         "press-down": {
-  //           initial: {
-  //             scale: 1,
-  //           },
-  //           pressed: {
-  //             scale: 0.95,
-  //           },
-  //         },
-  //       },
-  //     },
-  //   },
-  // },
 });

@@ -1,6 +1,6 @@
 # Grill Ledger
 
-Streamlining inventory, sales, and financial insights at your restaurant.
+Streamlining sales, financial insights and inventory at your restaurant.
 
 ## Setup
 
