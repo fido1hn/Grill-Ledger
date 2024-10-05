@@ -8,8 +8,8 @@
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
         <button
           v-for="item in menuItems"
-          :key="item.id"
-          @click="addToOrderV0(item)"
+          :key="item.item_id"
+          @click="addToOrder(item)"
           class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200"
         >
           <div class="font-semibold">{{ item.name }}</div>
@@ -20,50 +20,6 @@
 
     <div class="p-6 md:w-1/3">
       <!-- Current Order -->
-      <!-- <div class="current-order">
-        <h2 class="mb-4 text-xl font-medium">Current Order</h2>
-        <div
-          class="mb-2"
-          v-for="(pack, packIndex) in currentOrder.packs"
-          :key="packIndex"
-        >
-          <h3 class="font-medium">Pack {{ packIndex + 1 }}</h3>
-          <ul>
-            <li v-for="(item, itemIndex) in pack.items" :key="itemIndex">
-              {{ item.name }}
-              <UButton
-                color="rose"
-                class="ml-2"
-                @click="removeFromPack(packIndex, itemIndex)"
-              >
-                Remove
-              </UButton>
-            </li>
-          </ul>
-        </div>
-
-        <h3 class="text-base font-medium">Other Items</h3>
-        <ul>
-          <li
-            v-for="(item, index) in currentOrder.additionalItems"
-            :key="index"
-          >
-            {{ item.name }}
-            <UButton
-              class="ml-2"
-              color="rose"
-              @click="removeAdditionalItem(index)"
-              >Remove</UButton
-            >
-          </li>
-        </ul>
-        <p class="mt-3">Total Packs: {{ currentOrder.packs.length }}</p>
-        <p>Total: NGN{{ totalAmount }}</p>
-
-        
-        <button @click="checkout" :disabled="!hasItems">Checkout</button>
-      </div> -->
-
       <div class="mb-8 overflow-hidden rounded-lg bg-white shadow-md">
         <div class="p-6">
           <h2 class="mb-4 text-2xl font-bold">Current Order</h2>
@@ -88,11 +44,11 @@
               </span>
             </li>
             <li
-              v-if="takeawayPackNeeded && !customerOwnPack"
+              v-if="packsNeeded > 0 && !customerOwnPack"
               class="flex items-center justify-between text-green-600"
             >
-              <span>Takeaway Pack</span>
-              <span>${{ takeawayPackPrice }}</span>
+              <span>Takeaway Pack(s) ({{ packsNeeded }})</span>
+              <span>₦ {{ packsNeeded * PACK_PRICE }}</span>
             </li>
           </ul>
           <div class="mb-4 mt-4 flex items-center">
@@ -119,7 +75,7 @@
         </div>
         <div class="flex items-center justify-between bg-gray-50 px-6 py-4">
           <h3 class="text-xl font-bold">Total:</h3>
-          <span class="text-xl font-bold">₦ {{ totalAmountV0 }}</span>
+          <span class="text-xl font-bold">₦ {{ totalAmount }}</span>
         </div>
       </div>
 
@@ -147,50 +103,24 @@
 
 <script lang="ts" setup>
 import { MinusIcon } from "lucide-vue-next";
+import type { MenuItem, OrderItem } from "~/types";
 
 useHead({
   title: "Home",
 });
 
+const PACK_PRICE = 200;
+
 const { menuItems, fetchMenuItems } = useMenuItems();
 await fetchMenuItems();
 
-const PACK_PRICE = 200;
-
-const currentOrder = reactive({
-  packs: [],
-  additionalItems: [],
-});
-
-const order = ref([]);
-const takeawayPackPrice = 200;
+const order = ref<OrderItem[]>([]);
 const customerOwnPack = ref(false);
 const paymentType = ref("card");
 
-const addToOrder = (item) => {
-  if (item.requires_packaging) {
-    // If the last pack is full (already has a pack item), create a new pack
-    if (
-      currentOrder.packs.length === 0 ||
-      currentOrder.packs[currentOrder.packs.length - 1].items.some(
-        (i) => i.requires_packaging,
-      )
-    ) {
-      currentOrder.packs.push({ items: [] });
-    }
-    // Add the item to the last pack
-    currentOrder.packs[currentOrder.packs.length - 1].items.push({
-      ...item,
-    });
-  } else {
-    // Add non-pack items to additional items
-    currentOrder.additionalItems.push({ ...item });
-  }
-};
-
-const addToOrderV0 = (item) => {
+const addToOrder = (item: MenuItem): void => {
   const existingItem = order.value.find(
-    (orderItem) => orderItem.item_id === item.item_id,
+    (orderItem: OrderItem) => orderItem.item_id === item.item_id,
   );
   if (existingItem) {
     existingItem.quantity += 1;
@@ -199,7 +129,19 @@ const addToOrderV0 = (item) => {
   }
 };
 
-const removeFromOrder = (itemId) => {
+const packsNeeded = computed(() => {
+  const packItems = order.value.filter(
+    (item: OrderItem) => item.requires_packaging,
+  );
+  const bbqChickenCount =
+    order.value.find((item) => item.name.includes("BBQ"))?.quantity || 0;
+  return Math.max(
+    0,
+    packItems.reduce((sum, item) => sum + item.quantity, 0) - bbqChickenCount,
+  );
+});
+
+const removeFromOrder = (itemId: number): void => {
   const index = order.value.findIndex((item) => item.item_id === itemId);
   if (index !== -1) {
     if (order.value[index].quantity > 1) {
@@ -210,29 +152,8 @@ const removeFromOrder = (itemId) => {
   }
 };
 
-const takeawayPackNeeded = computed(() => {
-  const hasMain = order.value.some((item) => item.category === "main");
-  const hasPepperChicken = order.value.some(
-    (item) => item.name === "Pepper Chicken",
-  );
-  const hasBBQChicken = order.value.some((item) => item.name === "BBQ Chicken");
-
-  return hasMain && (!hasBBQChicken || (hasPepperChicken && !hasBBQChicken));
-});
-
-const totalAmountV0 = computed(() => {
-  const itemsTotal = order.value.reduce(
-    (sum, item) => sum + item.sale_price * item.quantity,
-    0,
-  );
-  return (
-    itemsTotal +
-    (takeawayPackNeeded.value && !customerOwnPack.value ? takeawayPackPrice : 0)
-  );
-});
-
 const saveOrder = () => {
-  // In a real application, this would typically involve sending the order to a backend service
+  // Sending the order to supabase
   console.log("Saving order:", {
     items: order.value,
     total: totalAmount.value,
@@ -243,7 +164,7 @@ const saveOrder = () => {
 };
 
 const printReceipt = () => {
-  // In a real application, this would typically involve generating a printable receipt
+  // printable receipt
   console.log("Printing receipt for order:", {
     items: order.value,
     total: totalAmount.value,
@@ -253,38 +174,12 @@ const printReceipt = () => {
   alert("Receipt printed successfully!");
 };
 
-const removeFromPack = (packIndex, itemIndex) => {
-  currentOrder.packs[packIndex].items.splice(itemIndex, 1);
-  // If the pack is empty after removal, remove the pack
-  if (currentOrder.packs[packIndex].items.length === 0) {
-    currentOrder.packs.splice(packIndex, 1);
-  }
-};
-
-const removeAdditionalItem = (index) => {
-  currentOrder.additionalItems.splice(index, 1);
-};
-
-const checkout = () => {};
-
-const hasItems = computed(() => {
-  return (
-    currentOrder.packs.length > 0 || currentOrder.additionalItems.length > 0
-  );
-});
-
 const totalAmount = computed(() => {
-  const packTotal = currentOrder.packs.reduce((total, pack) => {
-    return (
-      total +
-      pack.items.reduce((packTotal, item) => packTotal + item.sale_price, 0)
-    );
-  }, 0);
-  const additionalTotal = currentOrder.additionalItems.reduce(
-    (total, item) => total + item.sale_price,
+  const itemsTotal = order.value.reduce(
+    (sum, item) => sum + item.sale_price * item.quantity,
     0,
   );
-  const packsCost = currentOrder.packs.length * PACK_PRICE;
-  return packTotal + additionalTotal + packsCost;
+  const packCost = customerOwnPack.value ? 0 : packsNeeded.value * PACK_PRICE;
+  return itemsTotal + packCost;
 });
 </script>

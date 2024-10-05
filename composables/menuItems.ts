@@ -1,8 +1,9 @@
 import { useSupabaseClient } from "#imports";
+import type { MenuItem } from "~/types";
 
 export const useMenuItems = () => {
   const supabase = useSupabaseClient();
-  const menuItems = ref<never[] | null>([]);
+  const menuItems = ref<MenuItem[]>([]);
 
   const fetchMenuItems = async () => {
     try {
@@ -10,7 +11,11 @@ export const useMenuItems = () => {
         .from("menu_items")
         .select()
         .order("item_id", { ascending: true });
-      menuItems.value = data;
+      if (data) {
+        menuItems.value = data as MenuItem[];
+      } else {
+        menuItems.value = [];
+      }
     } catch (error) {
       //
     }
