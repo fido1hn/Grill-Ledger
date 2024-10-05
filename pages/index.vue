@@ -12,7 +12,13 @@
           @click="addToOrder(item)"
           v-motion
           :initial="{ scale: 1 }"
-          :tapped="{ scale: 0.9 }"
+          :tapped="{ scale: 0.8 }"
+          :transition="{
+            type: 'spring',
+            stiffness: 500,
+            damping: 15,
+            mass: 0.1,
+          }"
           class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200 dark:bg-gray-800"
         >
           <div class="font-semibold">
