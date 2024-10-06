@@ -89,7 +89,7 @@
             <label
               for="paymentMethod"
               class="mb-2 block text-base font-semibold"
-              >Payment method:</label
+              >payment method:</label
             >
             <USelect
               v-model="paymentMethod"
