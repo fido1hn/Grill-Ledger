@@ -12,7 +12,7 @@
           @click="addToOrder(item)"
           v-motion
           :initial="{ scale: 1 }"
-          :tapped="{ scale: 0.8 }"
+          :tapped="{ scale: 0.9 }"
           :transition="{
             type: 'spring',
             stiffness: 500,
@@ -86,13 +86,15 @@
             >
           </div>
           <div class="mb-4">
-            <label for="paymentType" class="mb-2 block text-base font-semibold"
-              >Payment Type:</label
+            <label
+              for="paymentMethod"
+              class="mb-2 block text-base font-semibold"
+              >Payment method:</label
             >
             <USelect
-              v-model="paymentType"
-              id="paymentType"
-              :options="paymentTypes"
+              v-model="paymentMethod"
+              id="paymentMethod"
+              :options="paymentMethods"
             />
           </div>
         </div>
@@ -114,6 +116,8 @@
           Print Receipt
         </UButton>
         <UButton
+          :loading="pending"
+          :disable="pending"
           size="md"
           class="text-md font-bold"
           @click="saveOrder"
@@ -134,6 +138,9 @@ useHead({
   title: "Home",
 });
 
+const { saveOrderToDb } = useOrderManagement();
+const { toastSuccess, toastError } = useAppToast();
+const pending = ref(false);
 const PACK_PRICE = 200;
 
 const { menuItems, fetchMenuItems } = useMenuItems();
@@ -141,8 +148,8 @@ await fetchMenuItems();
 
 const order = ref<OrderItem[]>([]);
 const customerOwnPack = ref(false);
-const paymentTypes = ["card", "transfer", "cash"];
-const paymentType = ref(paymentTypes[0]);
+const paymentMethods = ["card", "transfer", "cash"];
+const paymentMethod = ref(paymentMethods[0]);
 
 const addToOrder = (item: MenuItem): void => {
   const existingItem = order.value.find(
@@ -159,8 +166,9 @@ const packsNeeded = computed(() => {
   const packItems = order.value.filter(
     (item: OrderItem) => item.requires_packaging,
   );
-  const bbqChickenCount =
-    order.value.find((item) => item.name.includes("BBQ"))?.quantity || 0;
+  const bbqChickenCount = order.value
+    .filter((item) => item.name.toLowerCase().includes("bbq"))
+    .reduce((sum, item) => sum + item.quantity, 0);
   return Math.max(
     0,
     packItems.reduce((sum, item) => sum + item.quantity, 0) - bbqChickenCount,
@@ -178,15 +186,35 @@ const removeFromOrder = (itemId: number): void => {
   }
 };
 
-const saveOrder = () => {
+const saveOrder = async (): Promise<void> => {
+  if (!order.value.length) return;
+
+  pending.value = true;
   // Sending the order to supabase
-  console.log("Saving order:", {
+  const result = await saveOrderToDb({
     items: order.value,
     total: totalAmount.value,
-    paymentType: paymentType.value,
-    customerOwnPack: customerOwnPack.value,
+    paymentMethod: paymentMethod.value,
+    packagingCount: packsNeeded.value,
   });
-  alert("Order saved successfully!");
+
+  if (result.success) {
+    toastSuccess({
+      title: "Success",
+      description: "Order saved successfully!",
+    });
+    // Reset the order or perform any other necessary actions
+    order.value = [];
+    customerOwnPack.value = false;
+    paymentMethod.value = paymentMethods[0];
+    pending.value = false;
+  } else {
+    toastError({
+      title: "Error",
+      description: "Failed to save order. Please try again.",
+    });
+    pending.value = false;
+  }
 };
 
 const printReceipt = () => {
@@ -194,7 +222,7 @@ const printReceipt = () => {
   console.log("Printing receipt for order:", {
     items: order.value,
     total: totalAmount.value,
-    paymentType: paymentType.value,
+    paymentMethod: paymentMethod.value,
     customerOwnPack: customerOwnPack.value,
   });
   alert("Receipt printed successfully!");
