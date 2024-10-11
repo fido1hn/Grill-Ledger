@@ -6,28 +6,85 @@
 
       <!-- Menu Items -->
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <button
+        <div
           v-for="item in menuItems"
           :key="item.item_id"
-          @click="addToOrder(item)"
-          v-motion
-          :initial="{ scale: 1 }"
-          :tapped="{ scale: 0.9 }"
-          :transition="{
-            type: 'spring',
-            stiffness: 500,
-            damping: 15,
-            mass: 0.1,
-          }"
-          class="rounded-lg bg-gray-100 p-4 text-left transition duration-150 ease-in-out hover:bg-gray-200 dark:bg-gray-800"
+          class="flex flex-col rounded-lg bg-gray-100 p-4"
         >
-          <div class="font-semibold">
-            {{ item.name }}
+          <button @click="addToOrder(item)" class="flex-grow text-left">
+            <div class="font-semibold">{{ item.name }}</div>
+            <div class="text-sm text-gray-600">${{ item.sale_price }}</div>
+          </button>
+
+          <!-- Lower Bar -->
+          <div
+            class="mt-2 flex items-center justify-between border-t border-gray-200 pt-2"
+          >
+            <button
+              @click="removeFromOrder(item.item_id)"
+              class="rounded-full bg-gray-200 p-1 hover:bg-gray-300"
+              :disabled="!getItemQuantity(item.item_id)"
+            >
+              <MinusIcon class="h-4 w-4" />
+            </button>
+
+            <div class="relative">
+              <button
+                @click="toggleNumberPad(item.item_id)"
+                class="rounded px-2 py-1 font-medium hover:bg-gray-200"
+              >
+                {{ getItemQuantity(item.item_id) }}
+              </button>
+              <div
+                v-if="activeNumberPad === item.item_id"
+                class="absolute bottom-full left-1/2 z-10 mb-2 w-52 -translate-x-1/2 transform rounded border border-gray-200 bg-white shadow-lg"
+              >
+                <div class="p-2">
+                  <div class="mb-2 bg-gray-100 p-2 text-center">
+                    {{
+                      tempQuantity === "" ? "00" : tempQuantity.padStart(2, "0")
+                    }}
+                  </div>
+                  <div class="grid grid-cols-3 gap-1">
+                    <button
+                      v-for="n in 9"
+                      :key="n"
+                      @click="appendToTempQuantity(n)"
+                      class="rounded bg-gray-100 p-2 text-center hover:bg-gray-200"
+                    >
+                      {{ n }}
+                    </button>
+                    <button
+                      @click="appendToTempQuantity(0)"
+                      class="rounded bg-gray-100 p-2 text-center hover:bg-gray-200"
+                    >
+                      0
+                    </button>
+                    <button
+                      @click="clearTempQuantity"
+                      class="rounded bg-red-100 p-2 text-center hover:bg-red-200"
+                    >
+                      C
+                    </button>
+                    <button
+                      @click="confirmQuantity(item)"
+                      class="rounded bg-green-100 p-2 text-center hover:bg-green-200"
+                    >
+                      ✓
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button
+              @click="addToOrder(item)"
+              class="rounded-full bg-gray-200 p-1 hover:bg-gray-300"
+            >
+              <PlusIcon class="h-4 w-4" />
+            </button>
           </div>
-          <div class="text-sm text-gray-600 dark:text-gray-400">
-            ₦ {{ item.sale_price }}
-          </div>
-        </button>
+        </div>
       </div>
     </div>
 
@@ -131,7 +188,7 @@
 </template>
 
 <script lang="ts" setup>
-import { MinusIcon } from "lucide-vue-next";
+import { MinusIcon, PlusIcon } from "lucide-vue-next";
 import type { MenuItem, OrderItem } from "~/types";
 
 useHead({
@@ -150,6 +207,34 @@ const order = ref<OrderItem[]>([]);
 const customerOwnPack = ref(false);
 const paymentMethods = ["card", "transfer", "cash"];
 const paymentMethod = ref(paymentMethods[0]);
+const activeNumberPad = ref<number | null>(null);
+const tempQuantity = ref("");
+
+const appendToTempQuantity = (digit: number) => {
+  if (tempQuantity.value.length < 2) {
+    tempQuantity.value += digit;
+  }
+};
+
+const clearTempQuantity = () => {
+  tempQuantity.value = "";
+};
+
+const confirmQuantity = (item: MenuItem) => {
+  const newQuantity = parseInt(tempQuantity.value, 10);
+  if (newQuantity > 0) {
+    const existingItem = order.value.find(
+      (orderItem) => orderItem.item_id === item.item_id,
+    );
+    if (existingItem) {
+      existingItem.quantity = newQuantity;
+    } else {
+      order.value.push({ ...item, quantity: newQuantity });
+    }
+  }
+  activeNumberPad.value = null;
+  tempQuantity.value = "";
+};
 
 const addToOrder = (item: MenuItem): void => {
   const existingItem = order.value.find(
@@ -159,6 +244,21 @@ const addToOrder = (item: MenuItem): void => {
     existingItem.quantity += 1;
   } else {
     order.value.push({ ...item, quantity: 1 });
+  }
+};
+
+const getItemQuantity = (itemId: number): number => {
+  const item = order.value.find(
+    (orderItem: OrderItem) => orderItem.item_id === itemId,
+  );
+  return item ? item.quantity : 0;
+};
+
+const toggleNumberPad = (itemId: number): void => {
+  if (activeNumberPad.value === itemId) {
+    activeNumberPad.value = null;
+  } else {
+    activeNumberPad.value = itemId;
   }
 };
 
