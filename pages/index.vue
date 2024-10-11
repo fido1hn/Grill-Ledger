@@ -6,85 +6,20 @@
 
       <!-- Menu Items -->
       <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <div
+        <MenuItemButton
           v-for="item in menuItems"
           :key="item.item_id"
-          class="flex flex-col rounded-lg bg-gray-100 p-4"
-        >
-          <button @click="addToOrder(item)" class="flex-grow text-left">
-            <div class="font-semibold">{{ item.name }}</div>
-            <div class="text-sm text-gray-600">${{ item.sale_price }}</div>
-          </button>
-
-          <!-- Lower Bar -->
-          <div
-            class="mt-2 flex items-center justify-between border-t border-gray-200 pt-2"
-          >
-            <button
-              @click="removeFromOrder(item.item_id)"
-              class="rounded-full bg-gray-200 p-1 hover:bg-gray-300"
-              :disabled="!getItemQuantity(item.item_id)"
-            >
-              <MinusIcon class="h-4 w-4" />
-            </button>
-
-            <div class="relative">
-              <button
-                @click="toggleNumberPad(item.item_id)"
-                class="rounded px-2 py-1 font-medium hover:bg-gray-200"
-              >
-                {{ getItemQuantity(item.item_id) }}
-              </button>
-              <div
-                v-if="activeNumberPad === item.item_id"
-                class="absolute bottom-full left-1/2 z-10 mb-2 w-52 -translate-x-1/2 transform rounded border border-gray-200 bg-white shadow-lg"
-              >
-                <div class="p-2">
-                  <div class="mb-2 bg-gray-100 p-2 text-center">
-                    {{
-                      tempQuantity === "" ? "00" : tempQuantity.padStart(2, "0")
-                    }}
-                  </div>
-                  <div class="grid grid-cols-3 gap-1">
-                    <button
-                      v-for="n in 9"
-                      :key="n"
-                      @click="appendToTempQuantity(n)"
-                      class="rounded bg-gray-100 p-2 text-center hover:bg-gray-200"
-                    >
-                      {{ n }}
-                    </button>
-                    <button
-                      @click="appendToTempQuantity(0)"
-                      class="rounded bg-gray-100 p-2 text-center hover:bg-gray-200"
-                    >
-                      0
-                    </button>
-                    <button
-                      @click="clearTempQuantity"
-                      class="rounded bg-red-100 p-2 text-center hover:bg-red-200"
-                    >
-                      C
-                    </button>
-                    <button
-                      @click="confirmQuantity(item)"
-                      class="rounded bg-green-100 p-2 text-center hover:bg-green-200"
-                    >
-                      ✓
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <button
-              @click="addToOrder(item)"
-              class="rounded-full bg-gray-200 p-1 hover:bg-gray-300"
-            >
-              <PlusIcon class="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+          :item="item"
+          :quantity="getItemQuantity(item.item_id)"
+          :show-number-pad="activeNumberPad === item.item_id"
+          :temp-quantity="tempQuantity"
+          @add-to-order="addToOrder"
+          @remove-from-order="removeFromOrder"
+          @toggle-number-pad="toggleNumberPad"
+          @append-to-temp-quantity="appendToTempQuantity"
+          @clear-temp-quantity="clearTempQuantity"
+          @confirm-quantity="confirmQuantity"
+        />
       </div>
     </div>
 
