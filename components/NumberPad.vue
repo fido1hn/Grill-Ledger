@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="absolute bottom-full left-1/2 z-10 mb-2 w-52 -translate-x-1/2 transform rounded border border-gray-200 bg-white shadow-lg"
-  >
+  <div class="w-52 rounded border border-gray-200 bg-white shadow-lg">
     <div class="p-2">
       <div class="mb-2 bg-gray-100 p-2 text-center">
         {{ tempQuantity === "" ? "00" : tempQuantity.padStart(2, "0") }}

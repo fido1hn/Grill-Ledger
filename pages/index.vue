@@ -123,7 +123,7 @@
 </template>
 
 <script lang="ts" setup>
-import { MinusIcon, PlusIcon } from "lucide-vue-next";
+import { MinusIcon } from "lucide-vue-next";
 import type { MenuItem, OrderItem } from "~/types";
 
 useHead({
@@ -189,12 +189,8 @@ const getItemQuantity = (itemId: number): number => {
   return item ? item.quantity : 0;
 };
 
-const toggleNumberPad = (itemId: number): void => {
-  if (activeNumberPad.value === itemId) {
-    activeNumberPad.value = null;
-  } else {
-    activeNumberPad.value = itemId;
-  }
+const toggleNumberPad = (itemId: number | null): void => {
+  activeNumberPad.value = itemId;
 };
 
 const packsNeeded = computed(() => {

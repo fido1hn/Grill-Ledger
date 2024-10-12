@@ -18,19 +18,27 @@
       </button>
 
       <div class="relative">
-        <button
-          @click="$emit('toggle-number-pad', item.item_id)"
-          class="rounded px-2 py-1 font-medium hover:bg-gray-200"
+        <UPopover
+          :open="showNumberPad"
+          @close="$emit('toggle-number-pad', null)"
         >
-          {{ quantity }}
-        </button>
-        <NumberPad
-          v-if="showNumberPad"
-          :temp-quantity="tempQuantity"
-          @append="$emit('append-to-temp-quantity', $event)"
-          @clear="$emit('clear-temp-quantity')"
-          @confirm="$emit('confirm-quantity', item)"
-        />
+          <UButton
+            variant="soft"
+            @click="$emit('toggle-number-pad', item.item_id)"
+            class="rounded px-2 py-1 font-medium hover:bg-gray-200"
+          >
+            {{ quantity }}
+          </UButton>
+
+          <template #panel>
+            <NumberPad
+              :temp-quantity="tempQuantity"
+              @append="$emit('append-to-temp-quantity', $event)"
+              @clear="$emit('clear-temp-quantity')"
+              @confirm="$emit('confirm-quantity', item)"
+            />
+          </template>
+        </UPopover>
       </div>
 
       <button
@@ -57,7 +65,7 @@ defineProps<{
 defineEmits<{
   (e: "add-to-order", item: MenuItem): void;
   (e: "remove-from-order", itemId: number): void;
-  (e: "toggle-number-pad", itemId: number): void;
+  (e: "toggle-number-pad", itemId: number | null): void;
   (e: "append-to-temp-quantity", digit: number): void;
   (e: "clear-temp-quantity"): void;
   (e: "confirm-quantity", item: MenuItem): void;
