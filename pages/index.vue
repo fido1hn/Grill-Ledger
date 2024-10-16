@@ -11,7 +11,6 @@
           :key="item.item_id"
           :item="item"
           :quantity="getItemQuantity(item.item_id)"
-          :show-number-pad="activeNumberPad === item.item_id"
           :temp-quantity="tempQuantity"
           @add-to-order="addToOrder"
           @remove-from-order="removeFromOrder"
@@ -48,7 +47,7 @@
               :key="item.item_id"
               class="flex items-center justify-between"
             >
-              <span> {{ item.name }} x {{ item.quantity }} </span>
+              <span> {{ item.name }} x {{ item.quantity }}</span>
               <span class="flex items-center gap-2">
                 ₦ {{ item.sale_price * item.quantity }}
                 <button
@@ -183,6 +182,7 @@ const addToOrder = (item: MenuItem): void => {
 };
 
 const getItemQuantity = (itemId: number): number => {
+  // console.log("running get items quantity");
   const item = order.value.find(
     (orderItem: OrderItem) => orderItem.item_id === itemId,
   );
@@ -190,7 +190,15 @@ const getItemQuantity = (itemId: number): number => {
 };
 
 const toggleNumberPad = (itemId: number | null): void => {
+  console.log("Toggle number pad");
   activeNumberPad.value = itemId;
+  console.log("active number pad", activeNumberPad.value);
+};
+
+const showNumberPad = (itemId: number): boolean => {
+  console.log("running show number pad");
+  console.log(activeNumberPad.value === itemId);
+  return activeNumberPad.value === itemId;
 };
 
 const packsNeeded = computed(() => {

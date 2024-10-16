@@ -18,10 +18,7 @@
       </button>
 
       <div class="relative">
-        <UPopover
-          :open="showNumberPad"
-          @close="$emit('toggle-number-pad', null)"
-        >
+        <UPopover>
           <UButton
             variant="soft"
             @click="$emit('toggle-number-pad', item.item_id)"
@@ -58,7 +55,6 @@ import type { MenuItem } from "~/types";
 defineProps<{
   item: MenuItem;
   quantity: number;
-  showNumberPad: boolean;
   tempQuantity: string;
 }>();
 
