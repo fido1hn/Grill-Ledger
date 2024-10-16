@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-col md:flex-row">
     <div class="grow p-6">
-      <!-- <h1 class="mb-4 text-center text-xl font-medium">Point of sale</h1> -->
       <h2 class="mb-4 text-2xl font-bold">Menu Items</h2>
 
       <!-- Menu Items -->
@@ -14,7 +13,6 @@
           :temp-quantity="tempQuantity"
           @add-to-order="addToOrder"
           @remove-from-order="removeFromOrder"
-          @toggle-number-pad="toggleNumberPad"
           @append-to-temp-quantity="appendToTempQuantity"
           @clear-temp-quantity="clearTempQuantity"
           @confirm-quantity="confirmQuantity"
@@ -141,7 +139,6 @@ const order = ref<OrderItem[]>([]);
 const customerOwnPack = ref(false);
 const paymentMethods = ["card", "transfer", "cash"];
 const paymentMethod = ref(paymentMethods[0]);
-const activeNumberPad = ref<number | null>(null);
 const tempQuantity = ref("");
 
 const appendToTempQuantity = (digit: number) => {
@@ -154,7 +151,7 @@ const clearTempQuantity = () => {
   tempQuantity.value = "";
 };
 
-const confirmQuantity = (item: MenuItem) => {
+const confirmQuantity = (item: MenuItem, close: () => void) => {
   const newQuantity = parseInt(tempQuantity.value, 10);
   if (newQuantity > 0) {
     const existingItem = order.value.find(
@@ -166,8 +163,8 @@ const confirmQuantity = (item: MenuItem) => {
       order.value.push({ ...item, quantity: newQuantity });
     }
   }
-  activeNumberPad.value = null;
   tempQuantity.value = "";
+  close();
 };
 
 const addToOrder = (item: MenuItem): void => {
@@ -182,23 +179,10 @@ const addToOrder = (item: MenuItem): void => {
 };
 
 const getItemQuantity = (itemId: number): number => {
-  // console.log("running get items quantity");
   const item = order.value.find(
     (orderItem: OrderItem) => orderItem.item_id === itemId,
   );
   return item ? item.quantity : 0;
-};
-
-const toggleNumberPad = (itemId: number | null): void => {
-  console.log("Toggle number pad");
-  activeNumberPad.value = itemId;
-  console.log("active number pad", activeNumberPad.value);
-};
-
-const showNumberPad = (itemId: number): boolean => {
-  console.log("running show number pad");
-  console.log(activeNumberPad.value === itemId);
-  return activeNumberPad.value === itemId;
 };
 
 const packsNeeded = computed(() => {
