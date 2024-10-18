@@ -2,7 +2,7 @@
   <div class="flex flex-col rounded-lg bg-gray-100 p-4">
     <button @click="$emit('add-to-order', item)" class="flex-grow text-left">
       <div class="font-semibold">{{ item.name }}</div>
-      <div class="text-sm text-gray-600">${{ item.sale_price }}</div>
+      <div class="text-sm text-gray-600">₦ {{ item.sale_price }}</div>
     </button>
 
     <!-- Lower Bar -->
